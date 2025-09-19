@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gestor de Incidencias - San Juan de Lurigancho</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">📌 Gestor de Incidencias - SJL</div>
+        <nav>
+            <button data-view="inicio" class="nav-btn active">Inicio</button>
+            <button data-view="incidencias" class="nav-btn">Incidencias</button>
+            <button data-view="registrar" class="nav-btn">Registrar Incidencias</button>
+            <button data-view="lista" class="nav-btn">Lista de Incidencias</button>
+            <button data-view="mapa" class="nav-btn">Mapa de Cámaras</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="inicio" class="view">
+            <h1>Bienvenido</h1>
+            <p>Bienvenido al gestor de incidencias. Usa el menú para registrar, listar y visualizar las cámaras. 👍</p>
+        </section>
+
+        <section id="incidencias" class="view hidden">
+            <h2>Incidencias</h2>
+            <div class="options">
+                <button id="irRegistrar" class="btn primary">Registrar incidencia</button>
+                <button id="irLista" class="btn">Lista de incidencias</button>
+                <button id="cerrarSesion" class="btn danger">Cerrar</button>
+            </div>
+        </section>
+
+        <section id="registrar" class="view hidden">
+            <h2>Registrar incidencia</h2>
+            <form id="incidentForm" class="form">
+                <label>Nombre de incidencia
+                    <input id="incidentName" name="name" type="text" maxlength="100" required placeholder="Ej: Robo en escuela" />
+                </label>
+
+                <label>Tipología
+                    <select id="incidentType" required>
+                        <option value="">-- seleccionar --</option>
+                        <option>Robo</option>
+                        <option>Vandalismo</option>
+                        <option>Accidente</option>
+                        <option>Disturbio</option>
+                        <option>Otro</option>
+                    </select>
+                </label>
+
+                <label>Estado
+                    <select id="incidentStatus" required>
+                        <option>En proceso</option>
+                        <option>Resuelta</option>
+                        <option>No se resolvió</option>
+                    </select>
+                </label>
+
+                <label>Ubicación (dirección o referencia)
+                    <input id="incidentLocation" name="location" type="text" required placeholder="Av. Ejemplo 123, Urb. ..." />
+                </label>
+
+                <label>Fecha y hora (automático)
+                    <input id="incidentTimestamp" readonly />
+                </label>
+
+                <label>Mapa (clic para seleccionar ubicación)
+                    <div id="mapPreview" class="map-small"></div>
+                    <input id="incidentLat" type="hidden" />
+                    <input id="incidentLng" type="hidden" />
+                </label>
+
+                <label>Nombre de quien registra
+                    <input id="reportedBy" type="text" required placeholder="Nombre completo" />
+                </label>
+
+                <label>Código de incidencia
+                    <input id="incidentCode" readonly />
+                </label>
+
+                <div class="form-actions">
+                    <button id="btnRegister" class="btn primary">Registrar</button>
+                    <button id="btnFinalize" type="button" class="btn success">Finalizar incidencia</button>
+                    <button id="btnCloseForm" type="button" class="btn">Cerrar</button>
+                </div>
+
+            </form>
+        </section>
+
+        <section id="lista" class="view hidden">
+            <h2>Lista de incidencias</h2>
+            <div id="incidentListContainer">
+                <table id="incidentTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Tipología</th>
+                            <th>Estado</th>
+                            <th>Ubicación</th>
+                            <th>Fecha / Hora</th>
+                            <th>Reportó</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentList"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="mapa" class="view hidden">
+            <h2>Mapa de cámaras - San Juan de Lurigancho</h2>
+            <div id="map" class="map-large"></div>
+            <p class="note">Zonas: Norte / Centro / Sur. Haz clic en cámaras para ver detalles.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <small>Pagina Web creada por JOSE MILLA</small>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
