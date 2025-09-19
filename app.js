@@ -1,6 +1,3 @@
-// JavaScript mejorado para el gestor de incidencias (versión en español)
-
-/* Utilidades y constantes */
 const STORAGE_KEY = 'incidentes_sjl_v1';
 
 /* Inicializa la app: eventos, mapa y render */
@@ -9,8 +6,8 @@ function initApp() {
     bindFormEvents();
     renderTimestamp();
     displayIncidents();
-    initMap();       // mapa principal (cámaras)
-    initMapPreview(); // mapa pequeño en el formulario
+    initMap();       
+    initMapPreview(); 
 }
 
 /* Navegación entre vistas */
@@ -58,7 +55,7 @@ function isDuplicate({name, location, timestamp}) {
     return items.some(i => i.name === name && i.location === location && new Date(i.timestamp).toDateString() === today);
 }
 
-/* Registro de incidencia (status opcional) */
+/* Registro de incidencia */
 function registerIncident(event, forcedStatus = null) {
     if (event) event.preventDefault();
 
@@ -144,7 +141,7 @@ function displayIncidents() {
     });
 }
 
-/* Editar incidencia simple (prompt) */
+/* Editar incidencia  */
 function editIncident(index) {
     const items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     const inc = items[index];
@@ -167,7 +164,7 @@ function editIncident(index) {
     displayIncidents();
 }
 
-/* Finalizar incidencia (estado = Resuelta) */
+/* Finalizar incidencia */
 function finalizeIncident(index) {
     const items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     if (!items[index]) return;
@@ -209,7 +206,7 @@ function bindFormEvents() {
     });
 }
 
-/* --- MAPA PRINCIPAL (Leaflet) --- */
+/* --MAPA PRINCIPAL- */
 let mainMap;
 function initMap() {
     try {
@@ -219,7 +216,7 @@ function initMap() {
             attribution: '&copy; OpenStreetMap'
         }).addTo(mainMap);
 
-        // Zonas (polígonos simplificados)
+        // Zonas 
         const zones = {
             'Norte': { coords: [[-11.98,-76.99],[-11.98,-76.96],[-12.01,-76.96],[-12.01,-76.99]], color:'#2ecc71' },
             'Centro': { coords: [[-12.01,-76.99],[-12.01,-76.96],[-12.04,-76.96],[-12.04,-76.99]], color:'#f1c40f' },
@@ -231,7 +228,7 @@ function initMap() {
             poly.bindPopup(`<strong>Zona ${z}</strong>`);
         });
 
-        // Ejemplo de cámaras (marcadores)
+        // Ejemplo de cámaras
         const cameras = [
             {lat:-12.02, lng:-76.98, name:'Cámara 001 - Av. Próceres', zone:'Centro'},
             {lat:-11.99, lng:-76.975, name:'Cámara 023 - Alameda', zone:'Norte'},
@@ -249,18 +246,48 @@ function initMap() {
 
 /* --- MAPA PREVIEW para seleccionar lat/lng en el formulario --- */
 let previewMap, previewMarker;
+
+/* Reverse geocoding usando Nominatim (OpenStreetMap) */
+async function reverseGeocode(lat, lng) {
+    try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Respuesta no válida del servicio de geocodificación');
+        const data = await res.json();
+        return data.display_name || null;
+    } catch (e) {
+        console.warn('Error reverseGeocode:', e);
+        return null;
+    }
+}
+
 function initMapPreview() {
     try {
         previewMap = L.map('mapPreview').setView([-12.02, -76.98], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(previewMap);
 
-        previewMap.on('click', (e) => {
-            const {lat,lng} = e.latlng;
+        previewMap.on('click', async (e) => {
+            const { lat, lng } = e.latlng;
             if (previewMarker) previewMap.removeLayer(previewMarker);
-            previewMarker = L.marker([lat,lng]).addTo(previewMap);
+            previewMarker = L.marker([lat, lng]).addTo(previewMap);
+
+            // guardar coordenadas
             document.getElementById('incidentLat').value = lat.toFixed(6);
             document.getElementById('incidentLng').value = lng.toFixed(6);
-            document.getElementById('incidentLocation').value = `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+            // mostrar "buscando..." mientras hace reverse geocode
+            previewMarker.bindPopup('Buscando dirección...').openPopup();
+
+            const address = await reverseGeocode(lat, lng);
+            const locationInput = document.getElementById('incidentLocation');
+            if (address) {
+                locationInput.value = address;
+                previewMarker.setPopupContent(address).openPopup();
+            } else {
+                const coordsText = `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                locationInput.value = coordsText;
+                previewMarker.setPopupContent(coordsText).openPopup();
+            }
         });
     } catch(e) {
         console.error('Error inicializando mapa preview', e);
@@ -268,5 +295,4 @@ function initMapPreview() {
     }
 }
 
-/* Inicializa al cargar la página */
 window.addEventListener('load', initApp);
