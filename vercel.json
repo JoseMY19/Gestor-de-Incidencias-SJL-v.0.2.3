@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "app-incidencias",
+  "builds": [
+    { "src": "src/**/*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/src/$1" }
+  ]
+}
